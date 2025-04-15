@@ -16,7 +16,7 @@
   <h2>📲 數字易經分析器</h2>
   <p>請輸入手機號碼或代碼：</p>
   <input type="text" id="input" placeholder="例如 0985145214" />
-  <button onclick="analyze()">開始分析</button>
+  <button id="analyzeBtn">開始分析</button>
 
   <div class="result">
     <h3>🔍 分析結果</h3>
@@ -37,6 +37,17 @@
       "鬼": [18, 24, 36, 42, 63, 79, 81, 97],
       "禍": [17, 23, 32, 46, 64, 71, 89, 98],
       "生": [14, 28, 39, 41, 67, 76, 82, 93]
+    };
+
+    const colorMap = {
+      "天": "#AED581",
+      "延": "#FFF176",
+      "生": "#4FC3F7",
+      "伏": "#CE93D8",
+      "絕": "#D32F2F",
+      "鬼": "#6A1B9A",
+      "煞": "#455A64",
+      "禍": "#5D4037"
     };
 
     function letterToNumber(input) {
@@ -70,31 +81,34 @@
       return list.map((cls, i) => (cls === "伏" && i > 0) ? list[i - 1] : cls);
     }
 
-    function analyze() {
-      const raw = document.getElementById("input").value;
-      const numbers = removeMiddleFives(letterToNumber(raw));
-      const pairs = getPairs(numbers);
-      const rawClass = pairs.map(classify);
-      const adjustedClass = normalize伏(rawClass);
+    window.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("analyzeBtn").addEventListener("click", () => {
+        const raw = document.getElementById("input").value;
+        const numbers = removeMiddleFives(letterToNumber(raw));
+        const pairs = getPairs(numbers);
+        const rawClass = pairs.map(classify);
+        const adjustedClass = normalize伏(rawClass);
 
-      const analysisEl = document.getElementById("analysis");
-      analysisEl.innerHTML = "<strong>數列：</strong>" + numbers.join(", ") +
-        "<br><strong>拆解：</strong>" + pairs.map((p, i) => `${p} → ${adjustedClass[i]}`).join("<br>");
+        const analysisEl = document.getElementById("analysis");
+        analysisEl.innerHTML = "<strong>數列：</strong>" + numbers.join(", ") +
+          "<br><strong>拆解：</strong>" + pairs.map((p, i) => `${p} → ${adjustedClass[i]}`).join("<br>");
 
-      const count = {};
-      adjustedClass.forEach(c => { count[c] = (count[c] || 0) + 1; });
+        const count = {};
+        adjustedClass.forEach(c => { count[c] = (count[c] || 0) + 1; });
 
-      const chart = new Chart(document.getElementById("chart"), {
-        type: 'pie',
-        data: {
-          labels: Object.keys(count),
-          datasets: [{
-            data: Object.values(count),
-            backgroundColor: Object.keys(count).map(k => k === "天" || k === "延" || k === "生" || k === "伏" ? '#66bb6a' : '#ef5350')
-          }]
-        }
+        const ctx = document.getElementById("chart").getContext("2d");
+        new Chart(ctx, {
+          type: 'pie',
+          data: {
+            labels: Object.keys(count),
+            datasets: [{
+              data: Object.values(count),
+              backgroundColor: Object.keys(count).map(k => colorMap[k] || '#BDBDBD')
+            }]
+          }
+        });
       });
-    }
+    });
   </script>
 </body>
 </html>
